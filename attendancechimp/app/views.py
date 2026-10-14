@@ -11,6 +11,7 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
 from datetime import datetime
 import zoneinfo
 import json
@@ -33,6 +34,13 @@ def index(request):
     context = {}
     return render(request, 'app/index.html', context)
 
+def time_view():
+    return HttpResponse(CDT.strftime('%H:%M'))
+
+def sum_view(request):
+    n1 = request.GET.get('n1')
+    n2 = request.GET.get('n2')
+    return JsonResponse({'sum': n1+n2})
 
 
 # ---------------------------------------------------------------------------
