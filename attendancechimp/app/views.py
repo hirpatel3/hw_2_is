@@ -36,12 +36,12 @@ def index(request):
 
 def time_view(request):
     date = datetime.now(CDT)
-    return HttpResponse(CDT.strftime('%H:%M'))
+    return HttpResponse(date.strftime('%H:%M'))
 
 def sum_view(request):
     n1 = float(request.GET.get('n1'))
     n2 = float(request.GET.get('n2'))
-    return HttpResponseResponse({'sum': float(n1+n2)})
+    return HttpResponse({'sum': float(n1+n2)})
 
 
 # ---------------------------------------------------------------------------
