@@ -35,12 +35,13 @@ def index(request):
     return render(request, 'app/index.html', context)
 
 def time_view(request):
+    date = datetime.now(CDT)
     return HttpResponse(CDT.strftime('%H:%M'))
 
 def sum_view(request):
     n1 = float(request.GET.get('n1'))
     n2 = float(request.GET.get('n2'))
-    return JsonResponse({'sum': float(n1+n2)})
+    return HttpResponseResponse({'sum': float(n1+n2)})
 
 
 # ---------------------------------------------------------------------------
