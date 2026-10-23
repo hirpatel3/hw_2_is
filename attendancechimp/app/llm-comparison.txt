@@ -1,0 +1,6 @@
+Comparing my model to the LLM-generated one, we can notice one big difference which is that the LLM generated one is much more complete and specific. 
+It included a brief outline of the model and also included specifications such as the year of the student. The LLm one also implements a lot of helper functions
+for each of the classes. I only added an API function for validation but the LLM wrote many to help write out the classes. My model is much simpler and 
+creates the tables with on delete specifications and with null specifications for the foreign keys. 
+One comaprison I can make between the two is that we both use the on_delete for the attributes. One difference is that the LLM model uses blank= to specify the columns. Additionally, 
+for the QR code upload, the LLM has different options for space holders such as pending and not pending, or accepted. This can be helpful to understand who did not turn in a upload. 
