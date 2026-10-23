@@ -36,7 +36,7 @@ class StudentProfile(models.Model):
     This table stores all the student's names and their emails. It allows you to
     query to see what each student's name is and easilt find their email.
     """
-    student_id = models.IntegerField(primary_key=True)
+    student_id = models.AutoField(primary_key=True)
     student_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -47,7 +47,7 @@ class InstructorProfile(models.Model):
     query to find out what clases an instrcutor is taking and also find out 
     about their contact info like email if you ever need help. 
     """
-    instructor_id = models.IntegerField(primary_key=True)
+    instructor_id = models.AutoField(primary_key=True)
     instructor_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -66,7 +66,7 @@ class Course(models.Model):
     count of students and to make sure there is no unknown identites in the course. 
     It also provides the course's meeting schedule. 
     """
-    course_id = models.IntegerField(primary_key=True)
+    course_id = models.AutoField(primary_key=True)
     course_name = models.CharField(max_length=255)
     instructor = models.ForeignKey(InstructorProfile, null=False, on_delete=models.PROTECT)
     meeting_schedule = models.CharField(255)
@@ -97,7 +97,7 @@ class Lecture(models.Model):
     and course. The QR code is unique for each lecture. The QR identifier is the 
     unique string that identifies the QR code for that lecture class.
     """
-    lecture_id = models.IntegerField(primary_key=True)
+    lecture_id = models.AutoField(primary_key=True)
     date = models.DateField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     QR_identifier = models.CharField(max_length=255, unique=True)
@@ -112,8 +112,8 @@ class QRCodeUpload(models.Model):
     This keeps track of what student uploaded the QR code during class. This allows
     the instructors to know who was there for proof of attendance.
     """
-    qr_id = models.IntegerField(primary_key=True)
-    qr_image = models.ImageField()
+    qr_id = models.AutoField(primary_key=True)
+    qr_image = models.ImageField(upload_to="qr_uploads/")
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, null=True, on_delete=models.SET_NULL)
     time = models.DateTimeField()
