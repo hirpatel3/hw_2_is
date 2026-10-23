@@ -112,7 +112,8 @@ class QRCodeUpload(models.Model):
     This keeps track of what student uploaded the QR code during class. This allows
     the instructors to know who was there for proof of attendance.
     """
-    qr_id = models.ImageField(primary_key=True)
+    qr_id = models.IntegerField(primary_key=True)
+    qr_image = models.ImageField()
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, null=True, on_delete=models.SET_NULL)
     time = models.DateTimeField()
