@@ -39,6 +39,7 @@ class StudentProfile(models.Model):
     student_id = models.IntegerField(primary_key=True)
     student_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 class InstructorProfile(models.Model):
     """
@@ -49,6 +50,7 @@ class InstructorProfile(models.Model):
     instructor_id = models.IntegerField(primary_key=True)
     instructor_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     
 
 
@@ -110,7 +112,7 @@ class QRCodeUpload(models.Model):
     This keeps track of what student uploaded the QR code during class. This allows
     the instructors to know who was there for proof of attendance.
     """
-    qr_id = models.IntegerField(primary_key=True)
+    qr_id = models.ImageField(primary_key=True)
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, null=True, on_delete=models.SET_NULL)
     time = models.DateTimeField()
