@@ -58,9 +58,9 @@ def createUser(request):
     email = request.POST.get('email')
     if User.objects.filter(email=email).exists():
             return HttpResponse("Email already exists.", status=400)
-    user_name = request.POST.get('user_name')
-    password = request.POST.get('password')
-    is_student = request.POST.get('is_student')
+    user_name = request.GET.get('user_name')
+    password = request.GET.get('password')
+    is_student = request.GET.get('is_student')
 
     sign_up = User.objects.create_user(
         username=user_name,
@@ -69,12 +69,9 @@ def createUser(request):
     )
 
     if is_student == "yes":
-        StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email
-        )
+        StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email)
     else:
-        InstructorProfile.objects.create(user=sign_up,instructor_name=user_name,email=email
-        )
-
+        InstructorProfile.objects.create(user=sign_up,instructor_name=user_name,email=email)
     login(request, sign_up)
     return HttpResponse("Account successfully created!", status=200)
 
