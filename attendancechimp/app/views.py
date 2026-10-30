@@ -14,6 +14,7 @@ from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from datetime import datetime
 import zoneinfo
+from django.views.decorators.http import require_GET
 from .models import StudentProfile, InstructorProfile
 import json
 import io
@@ -51,6 +52,7 @@ def sum_view(request):
 # ---------------------------------------------------------------------------
 # HW4  — user creation
 # ---------------------------------------------------------------------------
+@require_GET
 def new(request):
     return render(request, "app/new.html")
 
