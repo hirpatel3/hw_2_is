@@ -14,6 +14,7 @@ from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from datetime import datetime
 import zoneinfo
+from .models import StudentProfile, InstructorProfile
 import json
 import io
 
@@ -30,8 +31,11 @@ CDT = zoneinfo.ZoneInfo("America/Chicago")
 
 def index(request):
     """Render the home page (index.html)."""
-
-    context = {}
+    date = datetime.now(CDT)
+    context = context = {
+            "time_view": date.strftime('%H:%M'),
+            "user": request.user,
+        }
     return render(request, 'app/index.html', context)
 
 def time_view(request):
@@ -47,6 +51,33 @@ def sum_view(request):
 # ---------------------------------------------------------------------------
 # HW4  — user creation
 # ---------------------------------------------------------------------------
+def new(request):
+    return render(request, "app/new.html")
+
+def createUser(request):
+    email = request.POST.get('email')
+    if User.objects.filter(email=email).exists():
+            return HttpResponse("Email already exists.", status=400)
+    user_name = request.POST.get('user_name')
+    password = request.POST.get('password')
+    is_student = request.POST.get('is_student')
+
+    sign_up = User.objects.create_user(
+        username=user_name,
+        email=email,
+        password=password
+    )
+
+    if is_student == "yes":
+        StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email
+        )
+    else:
+        InstructorProfile.objects.create(user=sign_up,instructor_name=user_name,email=email
+        )
+
+    login(request, sign_up)
+    return HttpResponse("Account successfully created!", status=200)
+
 
 
 

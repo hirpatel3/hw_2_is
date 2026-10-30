@@ -12,8 +12,22 @@
 <body>
 <div class="bio">
     <h1>AttendanceChimp</h1>
-    <p>Electronic class attendance tracking application.</p>
+    <p>Electronic class attendance tracking application. Allows for an easy way to check attendance of students.</p>
     <hr>
+
+    <p>     
+        User:
+        <span class="username">
+            {% if user.is_authenticated %}
+                {{ user.username }}
+            {% else %}
+                Not logged in.
+            {% endif %}
+
+            <p>Current time: {{ time_view }} CST</p>
+        </span>
+    </p>
+    
 
 </div>
 </body>
