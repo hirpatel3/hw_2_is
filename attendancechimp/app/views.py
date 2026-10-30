@@ -60,26 +60,21 @@ def new(request):
 def createUser(request):
     if request.method != "POST":
         return HttpResponse("Method not allowed", status=405)
+
     email = request.POST.get('email')
     if User.objects.filter(email=email).exists():
             return HttpResponse("Email already exists.", status=400)
-    user_name = request.GET.get('user_name')
-    password = request.GET.get('password')
-    is_student = request.GET.get('is_student')
+    user_name = request.POST.get('user_name') or request.POST.get('username')
+    if not user_name:
+            return HttpResponse("Username is required.", status=400)
+    password = request.POST.get('password')
+    is_student = request.POST.get('is_student')
 
     sign_up = User.objects.create_user(
         username=user_name,
         email=email,
         password=password
     )
-
-    if is_student == "1":
-        StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email)
-    else:
-        InstructorProfile.objects.create(user=sign_up,instructor_name=user_name,email=email)
-    login(request, sign_up)
-    return HttpResponse("Account successfully created!", status=200)
-
 
 
 
