@@ -56,6 +56,7 @@ def sum_view(request):
 def new(request):
     return render(request, "app/new.html")
 
+@csrf_exempt
 def createUser(request):
     if request.method != "POST":
         return HttpResponse("Method not allowed", status=405)
