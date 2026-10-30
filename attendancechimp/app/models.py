@@ -69,7 +69,7 @@ class Course(models.Model):
     course_id = models.AutoField(primary_key=True)
     course_name = models.CharField(max_length=255)
     instructor = models.ForeignKey(InstructorProfile, null=False, on_delete=models.PROTECT)
-    meeting_schedule = models.CharField(255)
+    meeting_schedule = models.CharField(max_length=255)
 
 
 
