@@ -57,6 +57,8 @@ def new(request):
     return render(request, "app/new.html")
 
 def createUser(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed", status=405)
     email = request.POST.get('email')
     if User.objects.filter(email=email).exists():
             return HttpResponse("Email already exists.", status=400)
@@ -70,7 +72,7 @@ def createUser(request):
         password=password
     )
 
-    if is_student == "yes":
+    if is_student == "1":
         StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email)
     else:
         InstructorProfile.objects.create(user=sign_up,instructor_name=user_name,email=email)
