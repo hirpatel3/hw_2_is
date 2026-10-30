@@ -81,9 +81,16 @@ class Enrollment(models.Model):
     This table connects the students to their courses. It does this by referencing 
     the primary keys in the StudentProfile table and the Course table. 
     """
-    pk = models.CompositePrimaryKey("student", "course")
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "course"],
+                name="unique_student_course"
+            )
+        ]
 
 
 
