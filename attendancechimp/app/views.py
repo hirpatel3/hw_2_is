@@ -59,7 +59,7 @@ def new(request):
 @csrf_exempt
 def createUser(request):
     if request.method != "POST":
-        return HttpResponse("Method not allowed", status=405)
+        return HttpResponse("Not allowed", status=405)
     email = request.POST.get('email')
     if User.objects.filter(email=email).exists():
             return HttpResponse("Email already exists.", status=400)
@@ -74,13 +74,11 @@ def createUser(request):
         email=email,
         password=password
     )
-
-    if is_student == "1":
-        StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email)
-    else:
+    if is_student == "0":
         InstructorProfile.objects.create(user=sign_up,instructor_name=user_name,email=email)
-    login(request, sign_up)
-    return HttpResponse("Account successfully created!", status=200)
+    else:
+        StudentProfile.objects.create(user=sign_up,student_name=user_name,email=email)
+    return HttpResponse("Account was successfully created.", status=200)
 
 
 
