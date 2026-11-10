@@ -129,7 +129,7 @@ def createCourse(request):
         return HttpResponse("Instructor Login is Required.", status=401)
    
 
-    course_name = request.POST.get("course_name", "").strip()
+    course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
     start = parse_time(request.POST.get("start-time"))
     end = parse_time(request.POST.get("end-time"))
     days = []
@@ -151,24 +151,24 @@ def createCourse(request):
     )
     return HttpResponse("Course was successfully created.", status=200)
 
-# @csrf_exempt
-# def createLecture(request):
-#     if not is_instructor_user(request.user):
-#         return HttpResponse("Instructor login required.", status=401)
-#     if request.method != "POST":
-#         return HttpResponse("Not allowed", status=405)
+@csrf_exempt
+def createLecture(request):
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
+            return HttpResponse("Instructor Login is Required.", status=401)
+    if request.method != "POST":
+        return HttpResponse("Not allowed", status=405)
 
-#     course_name = request.POST.get("choice", "").strip()
-#     if not course_name:
-#         return HttpResponse("This choice is required.", status=400)
+    course_name = request.POST.get("choice", "").strip()
+    if not course_name:
+        return HttpResponse("This choice is required.", status=400)
 
-#     try:
-#         course = Course.objects.get(name=course_name)
-#     except Course.DoesNotExist:
-#         return HttpResponse("Course not found.", status=404)
+    try:
+        course = Course.objects.get(name=course_name)
+    except Course.DoesNotExist:
+        return HttpResponse("Course not found.", status=404)
 
-#     Lecture.objects.create(course=course)
-#     return HttpResponse("Lecture was successfully created.", status=200)
+    Lecture.objects.create(course=course)
+    return HttpResponse("Lecture was successfully created.", status=200)
 
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
