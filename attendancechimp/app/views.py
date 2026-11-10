@@ -111,14 +111,14 @@ def new_course(request):
     return render(request, 'app/new_course.html')
 
 
-# @login_required
-# def new_lecture(request):
-#     return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
+@login_required
+def new_lecture(request):
+    return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
 
 
-# @login_required
-# def new_qr_upload(request):
-#     return render(request, 'app/new_qr_upload.html')
+@login_required
+def new_qr_upload(request):
+    return render(request, 'app/new_qr_upload.html')
 
 
 @csrf_exempt
