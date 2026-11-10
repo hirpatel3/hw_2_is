@@ -111,14 +111,14 @@ def new_course(request):
     return render(request, 'app/new_course.html')
 
 
-@login_required
-def new_lecture(request):
-    return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
+# @login_required
+# def new_lecture(request):
+#     return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
 
 
-@login_required
-def new_qr_upload(request):
-    return render(request, 'app/new_qr_upload.html')
+# @login_required
+# def new_qr_upload(request):
+#     return render(request, 'app/new_qr_upload.html')
 
 
 @csrf_exempt
@@ -151,24 +151,24 @@ def createCourse(request):
     )
     return HttpResponse("Course was successfully created.", status=200)
 
-@csrf_exempt
-def createLecture(request):
-    if not is_instructor_user(request.user):
-        return HttpResponse("Instructor login required.", status=401)
-    if request.method != "POST":
-        return HttpResponse("Not allowed", status=405)
+# @csrf_exempt
+# def createLecture(request):
+#     if not is_instructor_user(request.user):
+#         return HttpResponse("Instructor login required.", status=401)
+#     if request.method != "POST":
+#         return HttpResponse("Not allowed", status=405)
 
-    course_name = request.POST.get("choice", "").strip()
-    if not course_name:
-        return HttpResponse("This choice is required.", status=400)
+#     course_name = request.POST.get("choice", "").strip()
+#     if not course_name:
+#         return HttpResponse("This choice is required.", status=400)
 
-    try:
-        course = Course.objects.get(name=course_name)
-    except Course.DoesNotExist:
-        return HttpResponse("Course not found.", status=404)
+#     try:
+#         course = Course.objects.get(name=course_name)
+#     except Course.DoesNotExist:
+#         return HttpResponse("Course not found.", status=404)
 
-    Lecture.objects.create(course=course)
-    return HttpResponse("Lecture was successfully created.", status=200)
+#     Lecture.objects.create(course=course)
+#     return HttpResponse("Lecture was successfully created.", status=200)
 
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
