@@ -138,7 +138,7 @@ def createCourse(request):
         return HttpResponse("start-time and end-time must be in HH:MM format.", status=400)
     
     Course.objects.create(
-        name=course_name,
+        course_name=course_name,
         instructor=request.user.instructorprofile,
         meeting_schedule=f"{','.join(days)} {start:%H:%M}-{end:%H:%M}",
     )
