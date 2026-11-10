@@ -16,6 +16,9 @@ from datetime import datetime
 import zoneinfo
 from django.views.decorators.http import require_GET
 from .models import StudentProfile, InstructorProfile
+from django.contrib.auth.decorators import login_required
+from .models import StudentProfile, InstructorProfile, Course
+from .models import StudentProfile, InstructorProfile, Course, Lecture
 import json
 import io
 
@@ -86,8 +89,86 @@ def createUser(request):
 # ---------------------------------------------------------------------------
 # HW5  — courses, lectures, QR uploads, dump
 # ---------------------------------------------------------------------------
+DAYS = ["mon", "tue", "wed", "thu", "fri"]
 
 
+def is_instructor_user(user):
+    return user.is_authenticated and InstructorProfile.objects.filter(user=user).exists()
+
+
+def parse_time(value):
+    """Accepts HH:MM or HH:MM:SS (browser time inputs send either)."""
+    for fmt in ("%H:%M", "%H:%M:%S"):
+        try:
+            return datetime.strptime(value, fmt).time()
+        except (ValueError, TypeError):
+            pass
+    return None
+
+
+@login_required
+def new_course(request):
+    return render(request, 'app/new_course.html')
+
+
+@login_required
+def new_lecture(request):
+    return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
+
+
+@login_required
+def new_qr_upload(request):
+    return render(request, 'app/new_qr_upload.html')
+
+
+@csrf_exempt
+def createCourse(request):
+    if request.method != "POST":
+            return HttpResponse("That is not allowed", status=405)
+    if not InstructorProfile.objects.filter(user=request.user).exists(): 
+        return HttpResponse("Instructor Login is Required.", status=401)
+   
+
+
+    course_name = request.POST.get("course-name", "").strip()
+    start = parse_time(request.POST.get("start-time"))
+    end = parse_time(request.POST.get("end-time"))
+    days = {d: bool(request.POST.get(f"day-{d}")) for d in DAYS}
+
+    if not course_name:
+        return HttpResponse("course-name is required.", status=400)
+    if start is None or end is None:
+        return HttpResponse("start-time and end-time must be in HH:MM format.", status=400)
+    if not any(days.values()):
+        return HttpResponse("Please select at least one day.", status=400)
+
+    Course.objects.create(
+        name=course_name,
+        start_time=start, 
+        end_time=end,
+        instructor=request.user.instructorprofile,
+        **days,
+    )
+    return HttpResponse("Course was successfully created.", status=200)
+
+@csrf_exempt
+def createLecture(request):
+    if not is_instructor_user(request.user):
+        return HttpResponse("Instructor login required.", status=401)
+    if request.method != "POST":
+        return HttpResponse("Not allowed", status=405)
+
+    course_name = request.POST.get("choice", "").strip()
+    if not course_name:
+        return HttpResponse("This choice is required.", status=400)
+
+    try:
+        course = Course.objects.get(name=course_name)
+    except Course.DoesNotExist:
+        return HttpResponse("Course not found.", status=404)
+
+    Lecture.objects.create(course=course)
+    return HttpResponse("Lecture was successfully created.", status=200)
 
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
