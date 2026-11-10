@@ -89,12 +89,6 @@ def createUser(request):
 # ---------------------------------------------------------------------------
 # HW5  — courses, lectures, QR uploads, dump
 # ---------------------------------------------------------------------------
-DAYS = ["mon", "tue", "wed", "thu", "fri"]
-
-
-def is_instructor_user(user):
-    return user.is_authenticated and InstructorProfile.objects.filter(user=user).exists()
-
 
 def parse_time(value):
     """Accepts HH:MM or HH:MM:SS (browser time inputs send either)."""
@@ -118,7 +112,7 @@ def new_lecture(request):
 
 @login_required
 def new_qr_upload(request):
-    return render(request, 'app/new_qr_upload.html')
+    return render(request, 'app/new_qr_upload.html') 
 
 
 @csrf_exempt
@@ -132,18 +126,17 @@ def createCourse(request):
     course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
     start = parse_time(request.POST.get("start-time"))
     end = parse_time(request.POST.get("end-time"))
+    DAYS = ["mon", "tue", "wed", "thu", "fri"]
     days = []
-    for day in DAYS: 
+    for day in DAYS:
         if request.POST.get(f"day-{day}"):
             days.append(day)
-
+    
     if not course_name:
         return HttpResponse("course-name is required.", status=400)
     if start is None or end is None:
         return HttpResponse("start-time and end-time must be in HH:MM format.", status=400)
-    if not any(days.values()):
-        return HttpResponse("Please select at least one day.", status=400)
-
+    
     Course.objects.create(
         name=course_name,
         instructor=request.user.instructorprofile,
@@ -158,7 +151,7 @@ def createLecture(request):
     if request.method != "POST":
         return HttpResponse("Not allowed", status=405)
 
-    course_name = request.POST.get("choice", "").strip()
+    course_name = request.POST.get("course", "").strip()
     if not course_name:
         return HttpResponse("This choice is required.", status=400)
 
