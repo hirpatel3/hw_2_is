@@ -125,15 +125,17 @@ def new_course(request):
 def createCourse(request):
     if request.method != "POST":
             return HttpResponse("That is not allowed", status=405)
-    if not InstructorProfile.objects.filter(user=request.user).exists(): 
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
         return HttpResponse("Instructor Login is Required.", status=401)
    
 
-
-    course_name = request.POST.get("course-name", "").strip()
+    course_name = request.POST.get("course_name", "").strip()
     start = parse_time(request.POST.get("start-time"))
     end = parse_time(request.POST.get("end-time"))
-    days = {d: bool(request.POST.get(f"day-{d}")) for d in DAYS}
+    days = []
+    for day in DAYS: 
+        if request.POST.get(f"day-{day}"):
+            days.append(day)
 
     if not course_name:
         return HttpResponse("course-name is required.", status=400)
@@ -144,10 +146,8 @@ def createCourse(request):
 
     Course.objects.create(
         name=course_name,
-        start_time=start, 
-        end_time=end,
         instructor=request.user.instructorprofile,
-        **days,
+        meeting_schedule=f"{','.join(days)} {start:%H:%M}-{end:%H:%M}",
     )
     return HttpResponse("Course was successfully created.", status=200)
 
