@@ -19,6 +19,7 @@ from .models import StudentProfile, InstructorProfile
 from django.contrib.auth.decorators import login_required
 from .models import StudentProfile, InstructorProfile, Course, Lecture, QRCodeUpload
 from django.utils import timezone
+import uuid
 import json
 import io
 
@@ -159,9 +160,11 @@ def createLecture(request):
     course = Course.objects.get(course_name=course_name)
 
     Lecture.objects.create(
-    course=course,
-    date=timezone.now()
-)
+        course=course,
+        date=timezone.now(),
+        QR_identifier=str(uuid.uuid4())
+    )
+
 
     return HttpResponse("Lecture was successfully created.", status=200)
 
