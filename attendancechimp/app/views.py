@@ -153,11 +153,14 @@ def createLecture(request):
         return HttpResponse("Not allowed", status=405)
 
     course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
+    
+    print("Received course:", course_name)
+    print("Courses in database:", list(Course.objects.values('course_id', 'course_name')))
 
-    try:
-        course = Course.objects.get(course_name=course_name)
-    except Course.DoesNotExist:
+    if not Course.objects.filter(course_id=course_name).exists():
         return HttpResponse("Course not found.", status=404)
+
+    course = Course.objects.get(course_id=course_name)
 
     Lecture.objects.create(course=course)
 
