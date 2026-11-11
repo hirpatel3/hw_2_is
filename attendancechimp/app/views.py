@@ -123,9 +123,8 @@ def createCourse(request):
         return HttpResponse("Instructor Login is Required.", status=401)
    
     course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
-    for fmt in ("%H:%M", "%H:%M:%S"):
-        start = datetime.strptime(request.POST.get("start-time"), fmt).time()
-        end = datetime.strptime(request.POST.get("end-time"), fmt).time()
+    start = parse_time(request.POST.get("start-time"))
+    end = parse_time(request.POST.get("end-time"))
     days_of_week = ["mon", "tue", "wed", "thu", "fri"]
     days = []
     for day in days_of_week:
