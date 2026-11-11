@@ -123,20 +123,19 @@ def createCourse(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
         return HttpResponse("Instructor Login is Required.", status=401)
    
-
     course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
     start = parse_time(request.POST.get("start-time"))
     end = parse_time(request.POST.get("end-time"))
-    DAYS = ["mon", "tue", "wed", "thu", "fri"]
+    days_of_week = ["mon", "tue", "wed", "thu", "fri"]
     days = []
-    for day in DAYS:
+    for day in days_of_week:
         if request.POST.get(f"day-{day}"):
             days.append(day)
     
-    if not course_name:
-        return HttpResponse("course-name is required.", status=400)
-    if start is None or end is None:
-        return HttpResponse("start-time and end-time must be in HH:MM format.", status=400)
+    # if not course_name:
+    #     return HttpResponse("course-name is required.", status=400)
+    # if start is None or end is None:
+    #     return HttpResponse("start-time and end-time must be in HH:MM format.", status=400)
     
     Course.objects.create(
         course_name=course_name,
@@ -146,15 +145,14 @@ def createCourse(request):
     return HttpResponse("Course was successfully created.", status=200)
 
 @csrf_exempt
-
 def createLecture(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
     if request.method != "POST":
         return HttpResponse("Not allowed", status=405)
     course_name = request.POST.get("choice", "").strip()
-    if not course_name:
-        return HttpResponse("This choice is required.", status=400)
+    # if not course_name:
+    #     return HttpResponse("Course name is required.", status=400)
     if not Course.objects.filter(course_name=course_name).exists():
         return HttpResponse("Course not found.", status=404)
     course = Course.objects.get(course_name=course_name)
@@ -165,7 +163,6 @@ def createLecture(request):
         QR_identifier=str(uuid.uuid4())
     )
 
-
     return HttpResponse("Lecture was successfully created.", status=200)
 
 @csrf_exempt
@@ -173,15 +170,14 @@ def createQRCodeUpload(request):
     if not request.user.is_authenticated or not StudentProfile.objects.filter(user=request.user).exists(): 
                 return HttpResponse("Instructor Login is Required.", status=401)
     
-    image = request.FILES.get("imageUpload")
-
-    if not image:
+    image_qr = request.FILES.get("imageUpload")
+    if not image_qr:
         return HttpResponse("Image is required.", status=400)
 
     student = StudentProfile.objects.get(user=request.user)
 
     QRCodeUpload.objects.create(
-        qr_image=image,
+        qr_image=image_qr,
         student=student,
         time=timezone.now()
     )
@@ -191,18 +187,18 @@ def dumpUploads(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
 
-    if request.method != "GET":
-        return HttpResponse("Not allowed", status=405)
+    # if request.method != "GET":
+    #     return HttpResponse("Not allowed", status=405)
 
     uploads = QRCodeUpload.objects.select_related('student__user').all()
-    name_date = []
+    data = []
     for upload in uploads:
-        name_date.append({
+        data.append({
             "username": upload.student.user.username,
             "upload_time": upload.time.strftime("%Y-%m-%d %H:%M:%S")
         })
 
-    return JsonResponse(name_date, safe=False)
+    return JsonResponse(data, safe=False)
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
 # ---------------------------------------------------------------------------
