@@ -122,7 +122,7 @@ def createCourse(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
         return HttpResponse("Instructor Login is Required.", status=401)
    
-    course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
+    course_name = (request.POST.get("course_name") or request.POST.get("course_name") or "").strip()
     start = parse_time(request.POST.get("start-time"))
     end = parse_time(request.POST.get("end-time"))
     days_of_week = ["mon", "tue", "wed", "thu", "fri"]
