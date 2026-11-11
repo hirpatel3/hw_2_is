@@ -146,22 +146,30 @@ def createCourse(request):
 
 @csrf_exempt
 def createLecture(request):
-    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
-            return HttpResponse("Instructor Login is Required.", status=401)
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
+        return HttpResponse("Instructor Login is Required.", status=401)
+
     if request.method != "POST":
         return HttpResponse("Not allowed", status=405)
 
-    course_name = request.POST.get("course", "").strip()
-    if not course_name:
+    course_id = request.POST.get("course", "").strip()
+
+    if not course_id:
         return HttpResponse("This choice is required.", status=400)
 
     try:
-        course = Course.objects.get(name=course_name)
+        course = Course.objects.get(id=course_id)
     except Course.DoesNotExist:
         return HttpResponse("Course not found.", status=404)
 
     Lecture.objects.create(course=course)
     return HttpResponse("Lecture was successfully created.", status=200)
+
+@csrf_exempt
+def createQRCodeUpload(request):
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
+                return HttpResponse("Instructor Login is Required.", status=401)
+    
 
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
