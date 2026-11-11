@@ -101,16 +101,13 @@ def parse_time(value):
             pass
     return None
 
-
 @login_required
 def new_course(request):
     return render(request, 'app/new_course.html')
 
-
 @login_required
 def new_lecture(request):
     return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
-
 
 @login_required
 def new_qr_upload(request):
@@ -141,12 +138,7 @@ def createCourse(request):
 def createLecture(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
-    # if request.method != "POST":
-    #     return HttpResponse("Not allowed", status=405)
     course_name = request.POST.get("choice", "").strip()
-
-    if not Course.objects.filter(course_name=course_name).exists():
-        return HttpResponse("Course not found.", status=404)
     course = Course.objects.get(course_name=course_name)
 
     Lecture.objects.create(
@@ -163,8 +155,6 @@ def createQRCodeUpload(request):
                 return HttpResponse("Instructor Login is Required.", status=401)
     
     image_qr = request.FILES.get("imageUpload")
-    if not image_qr:
-        return HttpResponse("Image is required.", status=400)
 
     student = StudentProfile.objects.get(user=request.user)
 
@@ -178,9 +168,6 @@ def createQRCodeUpload(request):
 def dumpUploads(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
-
-    # if request.method != "GET":
-    #     return HttpResponse("Not allowed", status=405)
 
     uploads = QRCodeUpload.objects.select_related('student__user').all()
     data = []
