@@ -184,7 +184,22 @@ def createQRCodeUpload(request):
     )
     return HttpResponse("QR Code uploaded successfully.", status=200)
     
+def dumpUploads(request):
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
+        return HttpResponse("Instructor Login is Required.", status=401)
 
+    if request.method != "GET":
+        return HttpResponse("Not allowed", status=405)
+
+    uploads = QRCodeUpload.objects.select_related('student__user').all()
+    name_date = []
+    for upload in uploads:
+        name_date.append({
+            "username": upload.student.user.username,
+            "upload_time": upload.time.strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+    return JsonResponse(name_date, safe=False)
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
 # ---------------------------------------------------------------------------
