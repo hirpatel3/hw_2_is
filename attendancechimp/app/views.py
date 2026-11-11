@@ -153,8 +153,6 @@ def createLecture(request):
         return HttpResponse("Not allowed", status=405)
 
     course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
-    if not course_name:
-        return HttpResponse("This choice is required.", status=400)
 
     try:
         course = Course.objects.get(course_name=course_name)
