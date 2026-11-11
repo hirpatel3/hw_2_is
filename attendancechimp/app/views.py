@@ -157,7 +157,12 @@ def createLecture(request):
     if not Course.objects.filter(course_name=course_name).exists():
         return HttpResponse("Course not found.", status=404)
     course = Course.objects.get(course_name=course_name)
-    Lecture.objects.create(course=course)
+
+    Lecture.objects.create(
+    course=course,
+    date=timezone.now()
+)
+
     return HttpResponse("Lecture was successfully created.", status=200)
 
 @csrf_exempt
