@@ -7,16 +7,19 @@
   <h1>New Lecture</h1>
   <form method="post" action="/app/createLecture">
     {% csrf_token %}
-    <p><label for="choice">Course</label>
+    <p><label for="course">Course
 
-       <select id="choice" name="choice" required>
-
-           <option value="{{ course.name }}">{{ course.name }}</option>
+    </label>
+            <select id="course" name="course" required>
+    <option value="{{ course.course_name }}">
+        {{ course.course_name }}
+    </option>
+</select>
 
        </select></p>
 
     <button type="submit">Create lecture</button>
-    
+
   </form>
 </body>
 </html>
