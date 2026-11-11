@@ -145,26 +145,19 @@ def createCourse(request):
     return HttpResponse("Course was successfully created.", status=200)
 
 @csrf_exempt
-@csrf_exempt
+
 def createLecture(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
-
     if request.method != "POST":
         return HttpResponse("Not allowed", status=405)
-
-    course_name = request.POST.get("course", "").strip()
-
+    course_name = request.POST.get("choice", "").strip()
     if not course_name:
         return HttpResponse("This choice is required.", status=400)
-
     if not Course.objects.filter(course_name=course_name).exists():
         return HttpResponse("Course not found.", status=404)
-
     course = Course.objects.get(course_name=course_name)
-
     Lecture.objects.create(course=course)
-
     return HttpResponse("Lecture was successfully created.", status=200)
 
 @csrf_exempt
