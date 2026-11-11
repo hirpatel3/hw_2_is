@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
   <title>New Course</title>
 </head>
 <body>
   <h1>New Course</h1>
   <form method="post" action="/app/createCourse">
     {% csrf_token %}
-    <p><label for="course-name">Course name</label>
-       <input type="text" id="course-name" name="course-name" required></p>
+    <p><label for="course_name">Course name
+    </label>
+       <input type="text" id="course_name" name="course_name" required>
+    </p>
     <p><label for="start-time">Start time</label>
-       <input type="time" id="start-time" name="start-time" required></p>
-    <p><label for="end-time">End time</label>
-       <input type="time" id="end-time" name="end-time" required></p>
+       <input type="time" id="start-time" name="start-time" required>
+    </p>
+    <p><label for="end-time">End time
+    </label>
+       <input type="time" id="end-time" name="end-time" required>
+    </p>
     <fieldset>
       <legend>Days</legend>
       <label><input type="checkbox" name="day-mon" value="1"> Mon</label>
@@ -22,7 +26,9 @@
       <label><input type="checkbox" name="day-thu" value="1"> Thu</label>
       <label><input type="checkbox" name="day-fri" value="1"> Fri</label>
     </fieldset>
-    <button type="submit">Create course</button>
+    <button type="submit">Create course
+
+    </button>
   </form>
 </body>
 </html>

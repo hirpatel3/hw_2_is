@@ -101,31 +101,31 @@ def parse_time(value):
     return None
 
 
-# @login_required
-# def new_course(request):
-#     return render(request, 'app/new_course.html')
+@login_required
+def new_course(request):
+    return render(request, 'app/new_course.html')
 
 
-# @login_required
-# def new_lecture(request):
-#     return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
+@login_required
+def new_lecture(request):
+    return render(request, 'app/new_lecture.html', {"courses": Course.objects.all()})
 
 
-# @login_required
-# def new_qr_upload(request):
-#     return render(request, 'app/new_qr_upload.html') 
-
+@login_required
+def new_qr_upload(request):
+    return render(request, 'app/new_qr_upload.html') 
 
 @csrf_exempt
 def createCourse(request):
-    if request.method != "POST":
-            return HttpResponse("That is not allowed", status=405)
+    # if request.method != "POST":
+    #         return HttpResponse("That is not allowed", status=405)
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
         return HttpResponse("Instructor Login is Required.", status=401)
    
     course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
-    start = parse_time(request.POST.get("start-time"))
-    end = parse_time(request.POST.get("end-time"))
+    for fmt in ("%H:%M", "%H:%M:%S"):
+        start = datetime.strptime(request.POST.get("start-time"), fmt).time()
+        end = datetime.strptime(request.POST.get("end-time"), fmt).time()
     days_of_week = ["mon", "tue", "wed", "thu", "fri"]
     days = []
     for day in days_of_week:
@@ -143,8 +143,8 @@ def createCourse(request):
 def createLecture(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
-    if request.method != "POST":
-        return HttpResponse("Not allowed", status=405)
+    # if request.method != "POST":
+    #     return HttpResponse("Not allowed", status=405)
     course_name = request.POST.get("choice", "").strip()
 
     if not Course.objects.filter(course_name=course_name).exists():
