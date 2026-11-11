@@ -17,8 +17,8 @@ import zoneinfo
 from django.views.decorators.http import require_GET
 from .models import StudentProfile, InstructorProfile
 from django.contrib.auth.decorators import login_required
-from .models import StudentProfile, InstructorProfile, Course
-from .models import StudentProfile, InstructorProfile, Course, Lecture
+from .models import StudentProfile, InstructorProfile, Course, Lecture, QRCodeUpload
+from django.utils import timezone
 import json
 import io
 
@@ -167,8 +167,22 @@ def createLecture(request):
 
 @csrf_exempt
 def createQRCodeUpload(request):
-    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
+    if not request.user.is_authenticated or not StudentProfile.objects.filter(user=request.user).exists(): 
                 return HttpResponse("Instructor Login is Required.", status=401)
+    
+    image = request.FILES.get("imageUpload")
+
+    if not image:
+        return HttpResponse("Image is required.", status=400)
+
+    student = StudentProfile.objects.get(user=request.user)
+
+    QRCodeUpload.objects.create(
+        qr_image=image,
+        student=student,
+        time=timezone.now()
+    )
+    return HttpResponse("QR Code uploaded successfully.", status=200)
     
 
 # ---------------------------------------------------------------------------
