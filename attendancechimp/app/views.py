@@ -152,17 +152,17 @@ def createLecture(request):
     if request.method != "POST":
         return HttpResponse("Not allowed", status=405)
 
-    course_id = request.POST.get("course", "").strip()
-
-    if not course_id:
+    course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
+    if not course_name:
         return HttpResponse("This choice is required.", status=400)
 
     try:
-        course = Course.objects.get(id=course_id)
+        course = Course.objects.get(course_name=course_name)
     except Course.DoesNotExist:
         return HttpResponse("Course not found.", status=404)
 
     Lecture.objects.create(course=course)
+
     return HttpResponse("Lecture was successfully created.", status=200)
 
 @csrf_exempt
