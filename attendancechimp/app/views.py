@@ -29,6 +29,7 @@ import io
 
 CDT = zoneinfo.ZoneInfo("America/Chicago")
 
+# I did use an LLM to help me parse the time and help to create the helper function.
 
 # ---------------------------------------------------------------------------
 # HW2  — index, time, sum
@@ -139,24 +140,26 @@ def createCourse(request):
     return HttpResponse("Course was successfully created.", status=200)
 
 @csrf_exempt
-def createLecture(request):
-    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
+@csrf_exempt
+def createCourse(request):
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
         return HttpResponse("Instructor Login is Required.", status=401)
-    # if request.method != "POST":
-    #     return HttpResponse("Not allowed", status=405)
-    course_name = request.POST.get("choice", "").strip()
-
-    if not Course.objects.filter(course_name=course_name).exists():
-        return HttpResponse("Course not found.", status=404)
-    course = Course.objects.get(course_name=course_name)
-
-    Lecture.objects.create(
-        course=course,
-        date=timezone.now(),
-        QR_identifier=str(uuid.uuid4())
+   
+    course_name = (request.POST.get("course_name") or request.POST.get("course-name") or "").strip()
+    start = parse_time(request.POST.get("start-time"))
+    end = parse_time(request.POST.get("end-time"))
+    days_of_week = ["mon", "tue", "wed", "thu", "fri"]
+    days = []
+    for day in days_of_week:
+        if request.POST.get(f"day-{day}"):
+            days.append(day)
+    
+    Course.objects.create(
+        course_name=course_name,
+        instructor=request.user.instructorprofile,
+        meeting_schedule=f"{','.join(days)} {start:%H:%M}-{end:%H:%M}",
     )
-
-    return HttpResponse("Lecture was successfully created.", status=200)
+    return HttpResponse("Course was successfully created.", status=200)
 
 @csrf_exempt
 def createQRCodeUpload(request):
