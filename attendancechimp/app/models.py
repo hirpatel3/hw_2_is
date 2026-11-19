@@ -144,24 +144,29 @@ def QRcode_check(student_id, qr_code):
     return lecture
 
 def getUploadsForCourse(course): 
+    from datetime import datetime
+from zoneinfo import ZoneInfo
+
+def getUploadsForCourse(course):
     if not Course.objects.filter(course_name=course).exists():
         return None
 
     course_obj = Course.objects.get(course_name=course)
 
-    days, times = course_obj.meeting_schedule.split(" ")
+    days, times = course_obj.meeting_schedule.strip().split(" ")
     start_str, end_str = times.split("-")
     start = datetime.strptime(start_str, "%H:%M").time()
     end = datetime.strptime(end_str, "%H:%M").time()
 
-    day_letters = ["M", "T", "W", "R", "F", "S", "U"]
+    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     uploads = QRCodeUpload.objects.filter(lecture__course=course_obj)
+
     uploads_good = []
     for upload in uploads:
-        local_time = timezone.localtime(upload.time)
+        local_time = upload.time.astimezone(ZoneInfo("America/Chicago"))
 
-        if day_letters[local_time.weekday()] not in days:
+        if day_names[local_time.weekday()] not in days:
             continue
         if not (start <= local_time.time() <= end):
             continue
