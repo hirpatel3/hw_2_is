@@ -18,8 +18,8 @@ Entities
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import logging
 import string
 import random
@@ -146,7 +146,7 @@ def QRcode_check(student_id, qr_code):
 
 def getUploadsForCourse(course):
     if not Course.objects.filter(course_name=course).exists():
-        return None
+        return []
     course_obj = Course.objects.get(course_name=course)
 
     days, times = course_obj.meeting_schedule.split()
@@ -160,7 +160,7 @@ def getUploadsForCourse(course):
 
     uploads_good = []
     for upload in uploads:
-        local_time = timezone.localtime(upload.time)
+        local_time = upload.time.astimezone(ZoneInfo("America/Chicago"))
 
         if day_names[local_time.weekday()] not in days:
             continue
