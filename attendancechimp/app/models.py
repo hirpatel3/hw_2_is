@@ -146,7 +146,7 @@ DAY_CODES = {0: "M", 1: "T", 2: "W", 3: "R", 4: "F", 5: "S", 6: "U"}
 def getUploadsForCourse(course): 
     if not Course.objects.filter(course_name=course).exists():
         return None
-    uploads = QRCodeUpload.objects.filter(lecture__course=course)
+    uploads = QRCodeUpload.objects.filter(lecture__course__course_name=course)
     uploads_good = []
     for upload in uploads:
         local_time = timezone.localtime(upload.time)
