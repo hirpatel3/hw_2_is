@@ -144,18 +144,36 @@ def QRcode_check(student_id, qr_code):
 
 DAY_CODES = {0: "M", 1: "T", 2: "W", 3: "R", 4: "F", 5: "S", 6: "U"}
 def getUploadsForCourse(course): 
-    if not Course.objects.filter(course_name=course).exists():
+    from django.utils import timezone
+
+WEEKDAY_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+
+def getUploadsForCourse(course_name):
+    try:
+        course_obj = Course.objects.get(course_name=course_name)
+    except Course.DoesNotExist:
         return None
-    uploads = QRCodeUpload.objects.filter(lecture__course__course_name=course)
-    uploads_good = []
+
+    uploads = (
+        QRCodeUpload.objects
+        .filter(lecture__course=course_obj)
+        .select_related("student__user", "lecture")
+    )
+
+    schedule = course_obj.meeting_schedule.lower()
+
+    valid_uploads = []
     for upload in uploads:
         local_time = timezone.localtime(upload.time)
 
-        if DAY_CODES[local_time.weekday()] not in course.days:
-            continue
-        if not (course.start_time <= local_time.time() <= course.end_time):
+        # a. weekday must appear in the schedule string
+        if WEEKDAY_NAMES[local_time.weekday()] not in schedule:
             continue
 
-        uploads_good.append(upload)
+        # b. time of day must fall within start_time and end_time
+        if not (course_obj.start_time <= local_time.time() <= course_obj.end_time):
+            continue
 
-    return uploads_good
+        valid_uploads.append(upload)
+
+    return valid_uploads
