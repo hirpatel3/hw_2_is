@@ -180,6 +180,8 @@ def dumpUploads(request):
     return JsonResponse(data, safe=False)
 
 def getUploads(request):
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
+        return HttpResponse("Instructor Login is Required.", status=401)
     course_var = request.GET.get("course")
     if not course_var:
         return JsonResponse({"error": "Missing course parameter"}, status=400)
@@ -187,8 +189,6 @@ def getUploads(request):
     if uploads_qr is None:
         return JsonResponse([], safe=False)
     
-    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
-                    return HttpResponse("Instructor Login is Required.", status=401)
     obj = []
     for qr in uploads_qr:
         dic = {"username": qr.student.user.username, "upload_time": timezone.localtime(qr.time).strftime("%Y-%m-%d %H:%M:%S")}

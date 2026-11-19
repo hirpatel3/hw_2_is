@@ -18,7 +18,7 @@ Entities
 
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import datetime, timezone as dt_timezone
+from datetime import datetime
 from zoneinfo import ZoneInfo
 import logging
 import string
@@ -149,22 +149,17 @@ def getUploadsForCourse(course):
         return []
     course_obj = Course.objects.get(course_name=course)
 
-    days, times = course_obj.meeting_schedule.split()
+    days, times = course_obj.meeting_schedule.lower().split()
     start_str, end_str = times.split("-")
     start = datetime.strptime(start_str, "%H:%M").time()
     end = datetime.strptime(end_str, "%H:%M").time()
 
-    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    chicago = ZoneInfo("America/Chicago")
-
+    day_names = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
     uploads = QRCodeUpload.objects.filter(lecture__course=course_obj)
 
     uploads_good = []
     for upload in uploads:
-        t = upload.time
-        if t.tzinfo is None:                      # naive: stored value is UTC
-            t = t.replace(tzinfo=dt_timezone.utc)
-        local_time = t.astimezone(chicago)
+        local_time = upload.time.astimezone(ZoneInfo("America/Chicago"))
 
         if day_names[local_time.weekday()] not in days:
             continue
