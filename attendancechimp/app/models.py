@@ -19,6 +19,7 @@ Entities
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime
 import logging
 import string
 import random
@@ -142,18 +143,33 @@ def QRcode_check(student_id, qr_code):
         raise ValueError("QR code does not match a lecture they are enrollled into.")
     return lecture
 
-DAY_CODES = {0: "M", 1: "T", 2: "W", 3: "R", 4: "F", 5: "S", 6: "U"}
 def getUploadsForCourse(course): 
+    from datetime import datetime
+from zoneinfo import ZoneInfo
+
+def getUploadsForCourse(course):
     if not Course.objects.filter(course_name=course).exists():
         return None
-    uploads = QRCodeUpload.objects.filter(lecture__course__course_name=course)
+
+    course_obj = Course.objects.get(course_name=course)
+
+    # Split "Mon/Tue/Wed/Thu/Fri 07:00-14:00" into days and times
+    days, times = course_obj.meeting_schedule.strip().split(" ")
+    start_str, end_str = times.split("-")
+    start = datetime.strptime(start_str, "%H:%M").time()
+    end = datetime.strptime(end_str, "%H:%M").time()
+
+    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+    uploads = QRCodeUpload.objects.filter(lecture__course=course_obj)
+
     uploads_good = []
     for upload in uploads:
-        local_time = timezone.localtime(upload.time)
+        local_time = upload.time.astimezone(ZoneInfo("America/Chicago"))
 
-        # if DAY_CODES[local_time.weekday()] not in course.days:
-        #     continue
-        if not (course.start_time <= local_time.time() <= course.end_time):
+        if day_names[local_time.weekday()] not in days:
+            continue
+        if not (start <= local_time.time() <= end):
             continue
 
         uploads_good.append(upload)
