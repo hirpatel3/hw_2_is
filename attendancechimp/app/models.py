@@ -148,13 +148,15 @@ def getUploadsForCourse(course):
 from zoneinfo import ZoneInfo
 
 def getUploadsForCourse(course):
+    from datetime import datetime
+from django.utils import timezone
+
+def getUploadsForCourse(course):
     if not Course.objects.filter(course_name=course).exists():
         return None
-
     course_obj = Course.objects.get(course_name=course)
 
-    # Split "Mon/Tue/Wed/Thu/Fri 07:00-14:00" into days and times
-    days, times = course_obj.meeting_schedule.strip().split(" ")
+    days, times = course_obj.meeting_schedule.split()
     start_str, end_str = times.split("-")
     start = datetime.strptime(start_str, "%H:%M").time()
     end = datetime.strptime(end_str, "%H:%M").time()
@@ -165,7 +167,7 @@ def getUploadsForCourse(course):
 
     uploads_good = []
     for upload in uploads:
-        local_time = upload.time.astimezone(ZoneInfo("America/Chicago"))
+        local_time = timezone.localtime(upload.time)
 
         if day_names[local_time.weekday()] not in days:
             continue
