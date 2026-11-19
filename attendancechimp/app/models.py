@@ -143,14 +143,10 @@ def QRcode_check(student_id, qr_code):
         raise ValueError("QR code does not match a lecture they are enrollled into.")
     return lecture
 
-def getUploadsForCourse(course): 
-    from datetime import datetime
-from zoneinfo import ZoneInfo
 
 def getUploadsForCourse(course):
     if not Course.objects.filter(course_name=course).exists():
         return None
-
     course_obj = Course.objects.get(course_name=course)
 
     days, times = course_obj.meeting_schedule.strip().split(" ")
