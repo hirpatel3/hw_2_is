@@ -143,13 +143,6 @@ def QRcode_check(student_id, qr_code):
         raise ValueError("QR code does not match a lecture they are enrollled into.")
     return lecture
 
-def getUploadsForCourse(course): 
-    from datetime import datetime
-from zoneinfo import ZoneInfo
-
-def getUploadsForCourse(course):
-    from datetime import datetime
-from django.utils import timezone
 
 def getUploadsForCourse(course):
     if not Course.objects.filter(course_name=course).exists():
@@ -162,12 +155,17 @@ def getUploadsForCourse(course):
     end = datetime.strptime(end_str, "%H:%M").time()
 
     day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    chicago = ZoneInfo("America/Chicago")
 
     uploads = QRCodeUpload.objects.filter(lecture__course=course_obj)
 
     uploads_good = []
     for upload in uploads:
-        local_time = timezone.localtime(upload.time)
+        t = upload.time
+        if t.tzinfo is None:           # naive: already in local (Chicago) time
+            local_time = t
+        else:                          # aware: convert to Chicago
+            local_time = t.astimezone(chicago)
 
         if day_names[local_time.weekday()] not in days:
             continue
