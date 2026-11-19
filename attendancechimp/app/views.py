@@ -17,7 +17,7 @@ import zoneinfo
 from django.views.decorators.http import require_GET
 from .models import StudentProfile, InstructorProfile
 from django.contrib.auth.decorators import login_required
-from .models import StudentProfile, InstructorProfile, Course, Lecture, QRCodeUpload
+from .models import StudentProfile, InstructorProfile, Course, Lecture, QRCodeUpload, getUploadsForCourse
 from django.utils import timezone
 import uuid
 import json
@@ -178,6 +178,22 @@ def dumpUploads(request):
         })
 
     return JsonResponse(data, safe=False)
+
+def getUploads(request):
+    course_var = request.GET.get("course")
+    if not course_var:
+        return JsonResponse({"error": "Missing course parameter"}, status=400)
+    uploads_qr = getUploadsForCourse(course_var)
+    if uploads_qr is None:
+        return JsonResponse([], safe=False)
+    
+    if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists(): 
+                    return HttpResponse("Instructor Login is Required.", status=401)
+    obj = []
+    for qr in uploads_qr:
+        dic = {"username": qr.student.user.username, "upload_time": timezone.localtime(qr.time).strftime("%Y-%m-%d %H:%M:%S")}
+        obj.append(dic)
+    return JsonResponse(obj, safe=False)
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
 # ---------------------------------------------------------------------------
