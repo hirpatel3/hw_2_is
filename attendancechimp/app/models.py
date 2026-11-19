@@ -19,6 +19,7 @@ Entities
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime
 import logging
 import string
 import random
@@ -142,38 +143,29 @@ def QRcode_check(student_id, qr_code):
         raise ValueError("QR code does not match a lecture they are enrollled into.")
     return lecture
 
-DAY_CODES = {0: "M", 1: "T", 2: "W", 3: "R", 4: "F", 5: "S", 6: "U"}
 def getUploadsForCourse(course): 
-    from django.utils import timezone
-
-WEEKDAY_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-
-def getUploadsForCourse(course_name):
-    try:
-        course_obj = Course.objects.get(course_name=course_name)
-    except Course.DoesNotExist:
+    if not Course.objects.filter(course_name=course).exists():
         return None
 
-    uploads = (
-        QRCodeUpload.objects
-        .filter(lecture__course=course_obj)
-        .select_related("student__user", "lecture")
-    )
+    course_obj = Course.objects.get(course_name=course)
 
-    schedule = course_obj.meeting_schedule.lower()
+    days, times = course_obj.meeting_schedule.split(" ")
+    start_str, end_str = times.split("-")
+    start = datetime.strptime(start_str, "%H:%M").time()
+    end = datetime.strptime(end_str, "%H:%M").time()
 
-    valid_uploads = []
+    day_letters = ["M", "T", "W", "R", "F", "S", "U"]
+
+    uploads = QRCodeUpload.objects.filter(lecture__course=course_obj)
+    uploads_good = []
     for upload in uploads:
         local_time = timezone.localtime(upload.time)
 
-        # a. weekday must appear in the schedule string
-        if WEEKDAY_NAMES[local_time.weekday()] not in schedule:
+        if day_letters[local_time.weekday()] not in days:
+            continue
+        if not (start <= local_time.time() <= end):
             continue
 
-        # b. time of day must fall within start_time and end_time
-        if not (course_obj.start_time <= local_time.time() <= course_obj.end_time):
-            continue
+        uploads_good.append(upload)
 
-        valid_uploads.append(upload)
-
-    return valid_uploads
+    return uploads_good
