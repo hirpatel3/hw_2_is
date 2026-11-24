@@ -22,6 +22,8 @@ from django.utils import timezone
 import uuid
 import json
 import io
+import random
+import string
 
 # from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
 #                      Lecture, QRCodeUpload, is_instructor, is_student,
@@ -139,12 +141,15 @@ def createLecture(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Instructor Login is Required.", status=401)
     course_name = request.POST.get("choice", "").strip()
+    qr_id = request.POST.get("qrdata", "").strip() 
+    if not qr_id:
+        alphabet = string.ascii_letters + string.digits
+        qr_id = ''.join(random.choices(alphabet, k=16))
     course = Course.objects.get(course_name=course_name)
-
     Lecture.objects.create(
         course=course,
         date=timezone.now(),
-        QR_identifier=str(uuid.uuid4())
+        QR_identifier=qr_id
     )
 
     return HttpResponse("Lecture was successfully created.", status=200)
