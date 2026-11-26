@@ -157,9 +157,11 @@ def createLecture(request):
 @csrf_exempt
 def createQRCodeUpload(request):
     if not request.user.is_authenticated or not StudentProfile.objects.filter(user=request.user).exists(): 
-                return HttpResponse("Instructor Login is Required.", status=401)
+                return HttpResponse("Instructor Login is Required.", status=400)
     
     image_qr = request.FILES.get("imageUpload")
+    if image_qr is None:
+        return HttpResponse("Invalid QR code.", status=400)
     student = StudentProfile.objects.get(user=request.user)
     lecture = None
     text = decodeQR(image_qr)
@@ -173,7 +175,7 @@ def createQRCodeUpload(request):
                 time=timezone.now(),
                 lecture=lecture
             )
-        return HttpResponse("QR code did not work.", status=401)
+        return HttpResponse("Invalid QR code.", status=400)
     else:
         QRCodeUpload.objects.create(
             qr_image=image_qr,
