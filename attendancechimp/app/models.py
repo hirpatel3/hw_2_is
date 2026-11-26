@@ -23,6 +23,8 @@ from zoneinfo import ZoneInfo
 import logging
 import string
 import random
+from PIL import Image
+from pyzbar.pyzbar import decode
 
 logger = logging.getLogger(__name__) # set up tracking, auditing, and debugging
                                                                # allows using logger.warning(), logger.error(), 
@@ -169,3 +171,14 @@ def getUploadsForCourse(course):
         uploads_good.append(upload)
 
     return uploads_good
+
+# attendancechimp/app/models.py, next to getUploadsForCourse
+def decodeQR(image):
+    try:
+        image_qr = Image.open(image)
+    except Exception:
+        return None
+    qr_lst = pyzbar.pyzbar.decode("utf-8")
+    if qr_lst is None:
+        return None
+    return qr_lst
