@@ -178,7 +178,7 @@ def decodeQR(image):
         image_qr = Image.open(image)
     except Exception:
         return None
-    qr_lst = pyzbar.pyzbar.decode("utf-8")
+    qr_lst = image_qr[0].data.decode("utf-8")
     if qr_lst is None:
         return None
     return qr_lst
