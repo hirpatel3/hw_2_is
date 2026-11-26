@@ -161,7 +161,7 @@ def createQRCodeUpload(request):
     
     image_qr = request.FILES.get("imageUpload")
     if image_qr is None:
-        return HttpResponse("Invalid QR code.", status=400)
+        return JsonResponse({"error": "Invalid QR code"}, status=400)
     student = StudentProfile.objects.get(user=request.user)
     lecture = None
     text = decodeQR(image_qr)
@@ -175,7 +175,7 @@ def createQRCodeUpload(request):
                 time=timezone.now(),
                 lecture=lecture
             )
-        return HttpResponse("Invalid QR code", status=400)
+        return JsonResponse({"error": "Invalid QR code"}, status=400)
     else:
         QRCodeUpload.objects.create(
             qr_image=image_qr,
@@ -183,7 +183,7 @@ def createQRCodeUpload(request):
             time=timezone.now(),
             lecture=lecture
         )
-    return HttpResponse("QR Code uploaded successfully.", status=200)
+    return JsonResponse({"status": "ok"}, status=200)
     
 def dumpUploads(request):
     if not request.user.is_authenticated or not InstructorProfile.objects.filter(user=request.user).exists():
