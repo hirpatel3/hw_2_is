@@ -175,7 +175,7 @@ def createQRCodeUpload(request):
                 time=timezone.now(),
                 lecture=lecture
             )
-        return HttpResponse("Invalid QR code.", status=400)
+        return HttpResponse("Invalid QR code", status=400)
     else:
         QRCodeUpload.objects.create(
             qr_image=image_qr,
