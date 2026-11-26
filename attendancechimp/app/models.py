@@ -179,7 +179,7 @@ def decodeQR(image):
         image_res = zbar_decode(image_qr)
     except Exception:
         return None
-    qr_lst = image_res[0].data.decode("utf-8")
-    if qr_lst is None:
+
+    if not image_res:
         return None
-    return qr_lst
+    return image_res[0].data.decode("utf-8")
