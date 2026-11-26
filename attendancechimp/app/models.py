@@ -24,7 +24,7 @@ import logging
 import string
 import random
 from PIL import Image
-from pyzbar.pyzbar import decode
+from pyzbar.pyzbar import decode as zbar_decode
 
 logger = logging.getLogger(__name__) # set up tracking, auditing, and debugging
                                                                # allows using logger.warning(), logger.error(), 
@@ -176,6 +176,7 @@ def getUploadsForCourse(course):
 def decodeQR(image):
     try:
         image_qr = Image.open(image)
+        image_res = zbar_decode(image_qr)
     except Exception:
         return None
     qr_lst = image_qr[0].data.decode("utf-8")
