@@ -17,7 +17,7 @@ import zoneinfo
 from django.views.decorators.http import require_GET
 from .models import StudentProfile, InstructorProfile
 from django.contrib.auth.decorators import login_required
-from .models import StudentProfile, InstructorProfile, Course, Lecture, QRCodeUpload, getUploadsForCourse
+from .models import StudentProfile, InstructorProfile, Course, Lecture, QRCodeUpload, getUploadsForCourse, decodeQR
 from django.utils import timezone
 import uuid
 import json
@@ -160,14 +160,27 @@ def createQRCodeUpload(request):
                 return HttpResponse("Instructor Login is Required.", status=401)
     
     image_qr = request.FILES.get("imageUpload")
-
     student = StudentProfile.objects.get(user=request.user)
-
-    QRCodeUpload.objects.create(
-        qr_image=image_qr,
-        student=student,
-        time=timezone.now()
-    )
+    lecture = None
+    text = decodeQR(image_qr)
+    if not text is None:
+        lecture = Lecture.objects.filter(QR_identifier=text).first()
+        
+    if text is None or lecture is None:
+        QRCodeUpload.objects.create(
+                qr_image=image_qr,
+                student=student,
+                time=timezone.now(),
+                lecture=lecture
+            )
+        return HttpResponse("QR code did not work.", status=401)
+    else:
+        QRCodeUpload.objects.create(
+            qr_image=image_qr,
+            student=student,
+            time=timezone.now(),
+            lecture=lecture
+        )
     return HttpResponse("QR Code uploaded successfully.", status=200)
     
 def dumpUploads(request):
